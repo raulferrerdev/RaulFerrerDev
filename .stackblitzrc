@@ -1,6 +1,7 @@
 {
   "env": {
     "BLOG_SLUG": "blog",
+    "COMPARATIVE_SLUG": "comparative",
     "PORTFOLIO_SLUG": "work",
     "SHOP_SLUG": "shop",
     "MENU_SLUG": "menu",

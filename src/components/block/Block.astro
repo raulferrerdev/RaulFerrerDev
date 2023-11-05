@@ -2,6 +2,7 @@
 import ImageGallery from "./ImageGallery.astro";
 import TextImage from "./TextImage.astro";
 import RecentItems from "./RecentItems.astro";
+import RecentItemsComparative from "./RecentItemsComparative.astro";
 import RichText from "./RichText.astro";
 import Features from "./Features.astro";
 import ShopCategories from "./ShopCategories.astro";
@@ -17,6 +18,7 @@ const { slot, ...props } = Astro.props;
   {props.component === "ImageGallery" && <ImageGallery {...props} />}
   {props.component === "TextImage" && <TextImage {...props} />}
   {props.component === "RecentItems" && <RecentItems {...props} />}
+  {props.component === "RecentItemsComparative" && <RecentItemsComparative {...props} />}
   {props.component === "RichText" && <RichText {...props} />}
   {props.component === "Features" && <Features {...props} />}
   {props.component === "ShopCategories" && <ShopCategories {...props} />}

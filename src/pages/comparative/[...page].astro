@@ -1,0 +1,27 @@
+---
+/* COMPARATIVE ARCHIVE PAGES */
+import { getEntry } from "astro:content";
+import PageLayoutArchive from "@layouts/PageLayoutArchive.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths({ paginate }) {
+  const posts = (await getCollection("comparative")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+  );
+  const { data } = await getEntry("config", "comparative");
+
+  return paginate(posts, { pageSize: data.per_page });
+}
+const base_url = import.meta.env.COMPARATIVE_SLUG;
+const { page } = Astro.props;
+const { data } = await getEntry("config", "comparative");
+
+const posts = (await getCollection("comparative")).sort(
+  (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf(),
+);
+/* get the used tags */
+const allFilters = posts.map((post) => post.data.tag).filter((post) => !!post);
+const filters = [...new Set(allFilters.flat(1))];
+---
+
+<PageLayoutArchive {page} {filters} {data} {base_url} />
