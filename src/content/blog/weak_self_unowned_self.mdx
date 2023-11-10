@@ -1,134 +1,107 @@
 ---
 tag:
-  - SwiftUI
-title: SwiftUI (Ch#1). VStack, HStack and ZStack
-description: Learn about the basic layouts in SwifUI with VStack, HStack, ZStack and Spacer.
-intro: Learn about the basic layouts in SwifUI with VStack, HStack, ZStack and Spacer.
+  - Swift
+title: Understanding Weak and Unowned References in Swift Closures
+description: In Swift, closures can create strong reference cycles that lead to memory leaks and prevent objects from being deallocated from memory. To avoid this, we can use weak and unowned references in closures to create safe and efficient code. This article explains how to use [weak self] and [unowned self] to create weak references in closures, and provides examples of when to use each one.
+intro: Learn how to use Weak and Unowned.
 style:
   template: full
   card_template: grid
   hero_template: image
   hero_image_opacity: ""
   container: md
-pubDate: 2022-12-17T15:59:01.000+02:00
-thumbnail: /src/assets/blog_swiftui_course_1.jpeg
-og_image: /src/assets/blog_swiftui_course_1.jpeg
+pubDate: 2023-03-03T15:59:01.000+02:00
+thumbnail: /src/assets/blog_weak_unowned.jpeg
+og_image: /src/assets/blog_weak_unowned.jpeg
 
 ---
-import { YouTube } from 'astro-embed';
 
-SwiftUI allows us to easily compose a user interface (UI) by adding components (View) and organizing them in the UI space according to our interests.
-The components to organize these Views are basically three: **VStack**, **HStack** and **ZStack**.
 
-<YouTube id="https://youtu.be/-dQ7ADkO_qk" />
+# Introduction
+**Automatic Reference Counting (ARC)** is a memory management feature in Swift that tracks the number of references to an object to manage its lifetime. When the number of references to an object reaches zero, the object is freed up in memory.
 
-## VStack
-When we create an application with SwiftUI, a default scene (*ContentView*) appears, which contains the following code:
+The mechanisms used by ARC to manage the lifetime of objects are *retain* and *release*. When we make a strong reference to an object, we 'retain' it, which increases the number of references by one. When we 'release' a reference to an object, the reference count is decremented by one. When the reference count reaches zero, ARC frees the object from memory.
+
+
+## Retain cycles
+In Swift, **retain cycles**, also known as *strong reference cycles*, occur when two or more objects have strong references to one another. **Retain cycles** can prevent objects from being released from memory, resulting in *memory leaks* and poor performance over time.
+
+Closures can also experience **retain cycles**. A **retain cycle** is created when a closure captures a reference to an object that has a strong reference to the closure. This can happen when we, for example, capture ourselves in a closure.
+
+To avoid this, we can use *[weak self]* and *[unowned self]* in closures to create weak references to the object that created the closure.
+
+## [weak self]
+**[weak self]** is used to create a *weak reference* to the object that created the closure. This means that if the object is deallocated from memory, the *weak reference* will automatically be set to nil. Let's see and example to better understand:
+
 ```swift
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
+class MyViewController: UIViewController {
+    var buttonTapHandler: (() -> Void)?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupButton()
+    }
+    
+    func setupButton() {
+        let button = UIButton()
+        button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        view.addSubview(button)
+    }
+    
+    @objc func buttonTapped() {
+        buttonTapHandler?()
     }
 }
 ```
-If we run this code, we'll see that an icon of the world appears in the middle of the screen, and below it, the text *'Hello, world!'*. That is, we can see two elements (an *Image* element and a *Text* element) appearing centered in the image on top of each other.
-This is because both elements are inside a **VStack** structure, which is to vertically place (a column) all the elements inside.
-By default, components are ordered center-aligned with no gap between them.) But we can change this with the alignment and spacing parameters that we can assign to VStack:
+Initially, we've a UIViewController that has a closure (*buttonTapHandler*) to handle button actions. The view controller creates and adds a button to the view, and, when the button is tapped, *buttonTapHandler* is called.
 
+But, because the closure has a strong reference to the view controller and the view controller has a strong reference to the closure, we've created a **retain cycle**:
 ```swift
-VStack(alignment: .leading, spacing: 10) {
-    ...
+buttonTapHandler = {
+    self.doSomething()
 }
 ```
-In this case, what we have done is say that the elements should be aligned to the left and with a separation between them of 10.
-The main alignments that we can give are (*HorizontalAlignment* type): *.leading* (left), *.center* (center) and *.trailing* (right).
-
-## HStack
-Now we change **VStack** for **HStack**, we will see that the two elements have been placed next to each other (probably if you have directly changed **VStack** for **HStack** it will have given you an error, since the values that the align parameter accepts are different, except for *.center*).
+To avoid this **retain cycle** we can use a weak reference to 'self':
 ```swift
-struct ContentView: View {
-    var body: some View {
-        HStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
+buttonTapHandler = { [weak self] in
+    self?.doSomething()
 }
 ```
-For the *align* parameter, in **HStack** we can use *.top* (the elements are aligned by the top of the highest of them), *.center* (the centers are aligned) and *.bottom *(they are aligned by the bottom of the elements).
-```swift
-HStack(alignment: .top, spacing: 25) {  
-    ...
-}
-```
+We create a *weak reference* to the view controller in the closure by using *[weak self]*. This means that if the view controller is deallocated, the closure will automatically have a nil reference to 'self', preventing the **retain cycle**.
 
-## ZStack
-If **VStack** allows us to align the elements on the Y axis and **HStack** on the X axis, **ZStack** allows us to put them on the Z axis, that is, stacked one above the other.
-For example, we modify the code used so far and put a *Rectangle* component instead of the *Image* component:
+## [unowned self]
+
+**[unowned self]** is used to create an *unowned reference* to the object that created the closure. An *unowned reference* is similar to a *weak reference*, but, in this case, it assumes that the object will always exist for the entire lifetime of the closure (and also, this reference is not optional).
+What this means is, if the object is deallocated from memory before the closure is executed, a runtime error will arise. Let's see an example of using **[unowned self]** in a closure:
 
 ```swift
-struct ContentView: View {
-    var body: some View {
-        ZStack {
-            Rectangle()
-                 .fill(Color.red)
-                 .frame(width: 300, height: 300)
-            Text("Hello, world!")
+class AnotherClass {
+    var closure: (() -> Void)?
+    
+    func performAction() {
+        DispatchQueue.main.async { [unowned self] in
+        self.closure?()
         }
     }
 }
+
+let anotherInstance = AnotherClass()
+
+// The closure will be executed asynchronously on the main thread
+anotherInstance.performAction()
 ```
 
-With this we get an red square to appear on the screen and, superimposed, the text *'Hello, World!'*.
+In this case, we're using **[unowned self]** to make a reference to 'self' that isn't owned in the closure, and *DispatchQueue.main.async* is then used to execute the closure asynchronously on the main thread. If *anotherInstance* is deallocated from memory before the closure is executed, a runtime error will arise. For this reason, we should only employ **[unowned self]** when we are certain that the object will exist through the closure.
 
-**ZStack** only presents the *align* property and this can have multiple values (a combination of the values we have seen for **VStack** and **HStack**): *.top*, *.center*, *.bottom*, *.leading*, *.topLeading*, *.bottomLeading*, *.trailing*, *.topTrailing*, *.bottomTrailing*.
+## When to use [weak self] and when [unowned self]
+As a rule of thumb:
+* Use **[weak self]** when we're not sure if the object will exist for the entire lifetime of the closure.
+* Use **[unowned self]** when we're sure that the object will exist for the entire lifetime of the closure.
 
-The order of appearance in a **ZStack** is: the first in the list (in this case the rectangle), is the one that appears lowest in the stack. However, we can change the position of the elements regardless of their place in the list. This is done by adding the *zIndex* parameter to the stack components.
+In fact, as documentation posted in [swift.org](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/automaticreferencecounting/#Weak-and-Unowned-References):
 
-Thus, if we put *.zIndex(1)* to the rectangle, it would appear above the text (we would not see the text) even though the code is the first.
-
-```swift
-struct ContentView: View {
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(Color.red)
-                .frame(width: 300, height: 300)
-                .zIndex(1)
-            Text("Hello, world!")
-        }
-    }
-}
-```
-
-> By default, zIndex has a value of 0 on each element of a **ZStack**. This value can be changed to positive or negative values to modify the positioning on the stack.
+> Define a capture in a closure as an unowned reference when the closure and the instance it captures will always refer to each other, and will always be deallocated at the same time. Conversely, define a capture as a weak reference when the captured reference may become nil at some point in the future. Weak references are always of an optional type, and automatically become nil when the instance they reference is deallocated. This enables you to check for their existence within the closure’s body.
 
 
-## Spacer
-We have seen that in the case of **VStack** and **HStack** we can indicate the separation between the different elements through the spacing parameter. But what if we wanted the **VStack** items to be at the bottom of the screen? And at the top?
-For this we have the **Spacer** element. This is an element with no content that expands to take up all available space (vertically on a **VStack** and horizontally on an **HStack**).
-
-```swift
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Spacer()
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
-```
-By putting the **Spacer** element first, what we'll do is make the *Image* component and the *Text* component scroll to the bottom of the screen.
+# Conclusion
+Understanding *weak references* and *unowned references* in Swift closures is important for avoids memory leaks and other common memory management problems. It is also important to use the appropriate type of reference for each situation, depending on whether we are confident that the object will exist for the duration of the closure or not. By following these best practices, we can write more maintainable and reliable Swift code.

@@ -1,134 +1,51 @@
 ---
 tag:
-  - SwiftUI
-title: SwiftUI (Ch#1). VStack, HStack and ZStack
-description: Learn about the basic layouts in SwifUI with VStack, HStack, ZStack and Spacer.
-intro: Learn about the basic layouts in SwifUI with VStack, HStack, ZStack and Spacer.
+  - Design
+  - Swift
+title: Xcode 14 - One Icon to Rule Them All!
+description: With Xcode 14 it is no longer necessary to use an application icon for each of the required sizes (depending on where the icon is to be displayed), only one is required. Let's see how to do it.
+intro: Use only an image size for all icons.
 style:
   template: full
   card_template: grid
   hero_template: image
   hero_image_opacity: ""
   container: md
-pubDate: 2022-12-17T15:59:01.000+02:00
-thumbnail: /src/assets/blog_swiftui_course_1.jpeg
-og_image: /src/assets/blog_swiftui_course_1.jpeg
+pubDate: 2022-12-02T15:59:01.000+02:00
+thumbnail: /src/assets/blog_one_icon.jpeg
+og_image: /src/assets/blog_one_icon.jpeg
 
 ---
-import { YouTube } from 'astro-embed';
 
-SwiftUI allows us to easily compose a user interface (UI) by adding components (View) and organizing them in the UI space according to our interests.
-The components to organize these Views are basically three: **VStack**, **HStack** and **ZStack**.
-
-<YouTube id="https://youtu.be/-dQ7ADkO_qk" />
-
-## VStack
-When we create an application with SwiftUI, a default scene (*ContentView*) appears, which contains the following code:
-```swift
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
-```
-If we run this code, we'll see that an icon of the world appears in the middle of the screen, and below it, the text *'Hello, world!'*. That is, we can see two elements (an *Image* element and a *Text* element) appearing centered in the image on top of each other.
-This is because both elements are inside a **VStack** structure, which is to vertically place (a column) all the elements inside.
-By default, components are ordered center-aligned with no gap between them.) But we can change this with the alignment and spacing parameters that we can assign to VStack:
-
-```swift
-VStack(alignment: .leading, spacing: 10) {
-    ...
-}
-```
-In this case, what we have done is say that the elements should be aligned to the left and with a separation between them of 10.
-The main alignments that we can give are (*HorizontalAlignment* type): *.leading* (left), *.center* (center) and *.trailing* (right).
-
-## HStack
-Now we change **VStack** for **HStack**, we will see that the two elements have been placed next to each other (probably if you have directly changed **VStack** for **HStack** it will have given you an error, since the values that the align parameter accepts are different, except for *.center*).
-```swift
-struct ContentView: View {
-    var body: some View {
-        HStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
-```
-For the *align* parameter, in **HStack** we can use *.top* (the elements are aligned by the top of the highest of them), *.center* (the centers are aligned) and *.bottom *(they are aligned by the bottom of the elements).
-```swift
-HStack(alignment: .top, spacing: 25) {  
-    ...
-}
-```
-
-## ZStack
-If **VStack** allows us to align the elements on the Y axis and **HStack** on the X axis, **ZStack** allows us to put them on the Z axis, that is, stacked one above the other.
-For example, we modify the code used so far and put a *Rectangle* component instead of the *Image* component:
-
-```swift
-struct ContentView: View {
-    var body: some View {
-        ZStack {
-            Rectangle()
-                 .fill(Color.red)
-                 .frame(width: 300, height: 300)
-            Text("Hello, world!")
-        }
-    }
-}
-```
-
-With this we get an red square to appear on the screen and, superimposed, the text *'Hello, World!'*.
-
-**ZStack** only presents the *align* property and this can have multiple values (a combination of the values we have seen for **VStack** and **HStack**): *.top*, *.center*, *.bottom*, *.leading*, *.topLeading*, *.bottomLeading*, *.trailing*, *.topTrailing*, *.bottomTrailing*.
-
-The order of appearance in a **ZStack** is: the first in the list (in this case the rectangle), is the one that appears lowest in the stack. However, we can change the position of the elements regardless of their place in the list. This is done by adding the *zIndex* parameter to the stack components.
-
-Thus, if we put *.zIndex(1)* to the rectangle, it would appear above the text (we would not see the text) even though the code is the first.
-
-```swift
-struct ContentView: View {
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(Color.red)
-                .frame(width: 300, height: 300)
-                .zIndex(1)
-            Text("Hello, world!")
-        }
-    }
-}
-```
-
-> By default, zIndex has a value of 0 on each element of a **ZStack**. This value can be changed to positive or negative values to modify the positioning on the stack.
+How many times have we found ourselves preparing countless icons of all the sizes required by Apple for our applications: sizes for iPhone and iPad and for different utilities — Spotlight, Notifications or App.
+Generating so many icons of different sizes was tedious if you did it manually, and something simpler and you used an icon generator (which from an icon, normally 1024x1024px, generated all the necessary sizes).
+But now with Xcode 14, as Apple announced at WWDC 2022, it will only be necessary to configure the Assets catalog of our application so that it only uses a 1024x1024px icon. Xcode 14 will take care of resizing this icon according to its needs.
 
 
-## Spacer
-We have seen that in the case of **VStack** and **HStack** we can indicate the separation between the different elements through the spacing parameter. But what if we wanted the **VStack** items to be at the bottom of the screen? And at the top?
-For this we have the **Spacer** element. This is an element with no content that expands to take up all available space (vertically on a **VStack** and horizontally on an **HStack**).
+# How to configure an application with a single icon
 
-```swift
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Spacer()
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
-```
-By putting the **Spacer** element first, what we'll do is make the *Image* component and the *Text* component scroll to the bottom of the screen.
+Once we have created our project with Xcode 14, we go to the Assets catalog. From the outset, we will see the same configuration as before, that is, a template to fill with the different sizes of icons.
+
+![Xcode 14 one icon](/src/assets/xcode_14_one_icon_1.png)
+
+Therefore, we have the option of filling them one by one with the different icons.
+
+![Xcode 14 one icon](/src/assets/xcode_14_one_icon_2.png)
+
+AppIcon asset filled with icons of different sizes.
+But, Xcode 14 introduces the option to use a single 1024x1024px icon. To do this, we simply go to the column on the right (to the Attributes inspector) and, in Device, select Single Size (for example, in the case of iOS).
+
+![Xcode 14 one icon](/src/assets/xcode_14_one_icon_3.png)
+
+In this way, the icon template is reduced to a single case, that of 1024x1024px.
+
+![Xcode 14 one icon](/src/assets/xcode_14_one_icon_4.png)
+
+## Limitations
+This new functionality of Xcode 14 has some limitations:
+* It is only available for iOS, iPadOS, and watchOS. For macOS, icons of different sizes are still required.
+* When this option is selected, it is for all icon sizes. That is, if we want an icon of a certain size to be different, we will have to configure them all one by one.
+
+
+# Conclusion
+Being able to use a single icon for the results of our application both in a reduction in the work time dedicated to generating the icons and in the fact that, by using a single image, the size of our apps is reduced.
