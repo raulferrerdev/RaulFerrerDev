@@ -44,6 +44,36 @@ export const settings = {
     },
 
     {
+      name: "private-policy",
+      label: t("private-policy"),
+      file: "src/content/config/private-policy.mdx",
+
+      fields: [
+        { name: "sitename", label: t("site_name"), widget: "string" },
+        { name: "intro", label: t("intro"), widget: "markdown" },
+        { name: "footer_text", label: t("footer_text"), widget: "markdown" },
+
+        {
+          name: "newsletter_text",
+          label: t("newsletter_text"),
+          widget: "markdown",
+          required: false,
+        },
+        {
+          name: "team",
+          label: t("team"),
+          widget: "list",
+          collapsed: true,
+          fields: [
+            { name: "name", label: t("name"), widget: "string" },
+            { name: "position", label: t("position"), widget: "string" },
+            { name: "thumbnail", label: t("photo"), widget: "image" },
+          ],
+        },
+      ],
+    },
+
+    {
       name: "blog",
       label: t("blog_settings"),
       file: "src/content/config/blog.mdx",
