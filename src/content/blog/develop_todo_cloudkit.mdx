@@ -837,7 +837,7 @@ protocol TaskCheckDelegate: class {
 Now in the *TasksTableViewController* class we add the delegate to the cell:
 
 ```swift
-override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+override func tableView(_ tableView:UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: TaskCell.reuseID, for: indexPath) as! TaskCell
     cell.set(record: tasks[indexPath.row])
     cell.delegate = self
