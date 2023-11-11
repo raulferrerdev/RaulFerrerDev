@@ -828,7 +828,7 @@ func updateTask(_ task: CKRecord, completionHandler: @escaping (CKRecord?, Fetch
 
 When passing an object that already exists and saving it in *CloudKit*, its values are updated. To call this method when we mark the task complete, we create a protocol that allows passing the modified record from the cell to the *TasksTableViewController* class:
 
-```swit
+```swift
 protocol TaskCheckDelegate: class {
     func updateTask(_ record: CKRecord)
 }
