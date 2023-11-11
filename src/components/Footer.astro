@@ -9,6 +9,7 @@ const today = new Date();
 let about = await getEntry("config", "about");
 let contact = await getEntry("config", "contact");
 let navigation = await getEntry("config", "navigation");
+let privatepolicy = await getEntry("config", "private-policy");
 
  
 
@@ -87,7 +88,7 @@ const showNewsletter = !!import.meta.env.NEWSLETTER_PROVIDER;
             }
           </div>
         </div>
-
+<!--
         {
           showNewsletter && (
             <div class="gap:10 flex-col content-end  items-end justify-end  py-0 pt-8 sm:ml-auto sm:flex sm:max-w-md sm:pt-0 sm:text-right">
@@ -98,7 +99,7 @@ const showNewsletter = !!import.meta.env.NEWSLETTER_PROVIDER;
               <Newsletter client:visible />
             </div>
           )
-        }
+        }-->
       </div>
     </div>
   </div>
